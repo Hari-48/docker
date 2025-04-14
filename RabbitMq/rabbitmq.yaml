@@ -1,0 +1,33 @@
+version: '3.8'
+
+services:
+  rabbitmq:
+    image: rabbitmq:3-management
+    container_name: rabbitmqnew
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    networks:
+      - my-network
+
+  spring-app:
+    build:
+      context: .              
+      dockerfile: Dockerfile  
+    container_name: spring-app-rabbit
+    ports:
+      - "9009:9009"
+    environment:
+      - SPRING_RABBITMQ_HOST=rabbitmqnew  # <- Important: match the actual container name
+      - SPRING_RABBITMQ_PORT=5672
+      - SPRING_RABBITMQ_USERNAME=guest
+      - SPRING_RABBITMQ_PASSWORD=guest
+    depends_on:
+      - rabbitmq
+    networks:
+      - my-network
+
+networks:
+  my-network:
+    driver: bridge
+
